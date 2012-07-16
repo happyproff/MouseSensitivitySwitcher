@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 
@@ -43,7 +43,7 @@ namespace MouseSensitivitySwitcher {
 
         static void Main(string[] args) {
             
-            // get initial spped
+            // get initial sensitivity
             uint currentMouseSensitivity = getCurrentMouseSensitivity();
 
             // setting new sensitivity
@@ -55,9 +55,6 @@ namespace MouseSensitivitySwitcher {
             // send new sensitivity
             bool result;
             result = setMouseSensitivity(newMouseSensitivity);
-
-            // check new sensitivity
-            // currentMouseSensitivity = getCurrentMouseSensitivity();
 
         }
 
