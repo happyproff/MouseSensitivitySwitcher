@@ -1,65 +1,43 @@
-using System;
 using System.Runtime.InteropServices;
 
+namespace MouseSensitivitySwitcher
+{
+    internal static class MouseSensitivitySwitcher
+    {
+        private const uint SENSITIVITY_FOR_TOUCHPAD = 12;
+        private const uint SENSITIVITY_FOR_MOUSE = 4;
 
-namespace MouseSensitivitySwitcher {
+        private const uint SPI_GET_MOUSE_SPEED = 0x0070;
+        private const uint SPI_SET_MOUSE_SPEED = 0x0071;
+        private const uint SPIF_UPDATE_INI_FILE = 0x01;
+        private const uint SPIF_SEND_WIN_INI_CHANGE = 0x02;
 
+        public static void Main()
+        {
+            var newMouseSensitivity = GetCurrentMouseSensitivity() == SENSITIVITY_FOR_MOUSE
+                ? SENSITIVITY_FOR_TOUCHPAD
+                : SENSITIVITY_FOR_MOUSE;
+            SetMouseSensitivity(newMouseSensitivity);
+        }
 
-    class MouseSensitivitySwitcher {
+        private static uint GetCurrentMouseSensitivity()
+        {
+            uint result = 0;
+            SystemParametersInfoGet(SPI_GET_MOUSE_SPEED, 0x0, ref result, 0x0);
 
+            return result;
+        }
 
-        private const uint mouseSensitivityTouchPad = 12;
-        private const uint mouseSensitivityLogitech = 4;
-
-        private const uint SPI_GETMOUSESPEED = 0x0070;
-        private const uint SPI_SETMOUSESPEED = 0x0071;
-        private const uint SPIF_UPDATEINIFILE = 0x01;
-        private const uint SPIF_SENDWININICHANGE = 0x02;
-
+        private static void SetMouseSensitivity(uint newMouseSensitivity)
+        {
+            SystemParametersInfoSet(SPI_SET_MOUSE_SPEED, 0, newMouseSensitivity,
+                SPIF_UPDATE_INI_FILE | SPIF_SEND_WIN_INI_CHANGE);
+        }
 
         [DllImport("user32.dll", EntryPoint = "SystemParametersInfo", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool SystemParametersInfoGet(uint uiAction, uint uiParam, ref uint pvParam, uint fWinIni);
 
         [DllImport("user32.dll", EntryPoint = "SystemParametersInfo", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool SystemParametersInfoSet(uint uiAction, uint uiParam, uint pvParam, uint fWinIni);
-
-
-        private static uint getCurrentMouseSensitivity() {
-        
-            uint result = 0;
-            SystemParametersInfoGet (SPI_GETMOUSESPEED, 0x0, ref result, 0x0);
-            
-            return result;
-
-        }
-
-
-        private static bool setMouseSensitivity (uint newMouseSensitivity) {
-
-            return SystemParametersInfoSet(SPI_SETMOUSESPEED, 0, newMouseSensitivity, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-
-        }
-
-
-        static void Main(string[] args) {
-            
-            // get initial sensitivity
-            uint currentMouseSensitivity = getCurrentMouseSensitivity();
-
-            // setting new sensitivity
-            uint newMouseSensitivity = mouseSensitivityLogitech;
-            if (currentMouseSensitivity == newMouseSensitivity) {
-                newMouseSensitivity = mouseSensitivityTouchPad;
-            }
-            
-            // send new sensitivity
-            bool result;
-            result = setMouseSensitivity(newMouseSensitivity);
-
-        }
-
-
     }
-
-
 }
